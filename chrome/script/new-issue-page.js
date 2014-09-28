@@ -1,28 +1,37 @@
-var TEMPLATE_PATH = 'https://rawgit.com/skidding/github-issue-template/master/template.md'
 var $ISSUE_TITLE = $('.composer [name="issue[title]"]');
 var $ISSUE_BODY = $('.composer [name="issue[body]"]');
 
+var STORAGE_KEY = 'github-repos';
 $(function() {
   // Adjust the placeholder of the title input as well, to comply with the BDD
   // story format
-  $ISSUE_TITLE.prop('placeholder', "Title (describe the story)");
+  $ISSUE_TITLE.prop('placeholder', "Title (describe the issue)");
   // Let the user now immediately that a template is being fetched for the
   // fresh issue they're about to create
   $ISSUE_BODY.prop('placeholder', "Loading issue template...");
   // Fetch template contents from a Github project repo directly (this is
   // conventient because, being on the same domain (github.com), AJAX requests
   // are possible)
-  $.get(TEMPLATE_PATH, function(contents, status) {
-    if (status == 'success') {
+  chrome.storage.sync.get(STORAGE_KEY, function(items) {
       // This placeholder will be shown only when removing the entire contents
       // provided by the issue template
       $ISSUE_BODY.prop('placeholder', "Ignoring the issue template, are you?");
-      $ISSUE_BODY.val($.trim(contents));
-    } else {
-      // Notify the user that the template couldn't be fetched and the they
-      // should carry on w/ a blank issue body
-      $ISSUE_BODY.prop('placeholder', "Couldn't fetch issue template. Sorry!");
-    }
+
+      // Determine the current Github repo.
+      path = window.location.pathname.split('/', 3);
+      path.shift();
+      path = path.join('/');
+
+      // Find the appropriate template and apply.
+      var githubRepos = items[STORAGE_KEY].repos;
+      var templates = items[STORAGE_KEY].templates;
+
+      for (var i = 0; i < githubRepos.length; i++) {
+        if (githubRepos[i].repo == path) {
+	  var template = templates[githubRepos[i].template].template;
+          $ISSUE_BODY.val(template);
+	}
+      }
   });
   // Enable 'active placeholders' by reacting to clicks inside text blocks
   // between square brackets. They should get entirely selected when clicking
