@@ -5,19 +5,37 @@ $(function() {
   chrome.storage.sync.get(STORAGE_KEY, function(items) {
     if ($.isEmptyObject(items)) {
       var defaults = {};
+      var template = '&nbsp; | Detail\n\
+------------ | -------------\n\
+Browser | [ Chrome / Firefox / Internet Explorer / Netscape Navigator ]\n\
+OS | [ OSX / Windows / Linux ]\n\
+User | \n\
+URL | \n\
+Screenshot | ![Screenshot]( [screenshot] )\n\
+Notes | ';
 
       defaults[STORAGE_KEY] = {
         repos: [
           {
-            name: 'Mozaic',
-            repo: 'uberVU/mozaic',
+            name: 'Report Webapp Issue',
+            repo: 'AllPlayers/allplayers-mainline',
+            template: 0
+          },
+          {
+            name: 'Report Store Issue',
+            repo: 'AllPlayers/apci-store',
+            template: 0
+          },
+          {
+            name: 'Report API Issue',
+            repo: 'AllPlayers/allplayers-api',
             template: 0
           },
         ],
         templates: [
           {
-            name: 'Example Template',
-            template: 'We have an issue!'
+            name: 'New Issue',
+            template: template
           }
         ]
       }
